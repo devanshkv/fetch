@@ -23,6 +23,7 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--data_dir', help='Directory with candidate h5s.', required=True, type=str)
     parser.add_argument('-b', '--batch_size', help='Batch size for training data', default=8, type=int)
     parser.add_argument('-m', '--model', help='Index of the model to train', required=True)
+    parser.add_argument('-p', '--probability', help='Detection threshold', default=0.5, type=float)
     args = parser.parse_args()
 
     if args.verbose:
@@ -61,6 +62,6 @@ if __name__ == "__main__":
     # Save results
     results_dict = {}
     results_dict['candidate'] = cands_to_eval
-    results_dict['probability'] = np.round(probs[:, 1])
+    results_dict['probability'] = np.round(probs[:, 1] >= args.probability)
     results_file = args.data_dir + '/results.csv'
     pd.DataFrame(results_dict).to_csv(results_file)
