@@ -37,9 +37,9 @@ def cand2h5(cand_val, args):
     if args.resize:
         cand.resize(key='ft', size=args.time_size, axis=0, anti_aliasing=True)
         cand.resize(key='ft', size=args.frequency_size, axis=1, anti_aliasing=True)
-        logging.info(f'Resized Frequency-Time data to fsize:{args.frequency_size} and tsize:{args.time_size}')
+        logging.info(f'Resized Frequency-Time data to fsize: {args.frequency_size} and tsize: {args.time_size}')
         cand.resize(key='dmt', size = args.time_size, axis=0, anti_aliasing=True)
-        logging.info(f'Decimated DM-Time to dmsize:256 and tsize:{args.time_size}')
+        logging.info(f'Resized DM-Time to dmsize: 256 and tsize: {args.time_size}')
     else:
         pulse_width = cand.width
         if pulse_width == 1:
@@ -47,13 +47,15 @@ def cand2h5(cand_val, args):
         else:
             time_decimate_factor = pulse_width // 2
         cand.decimate(key='ft', axis=0, pad=True, decimate_factor=time_decimate_factor, mode='median')
-        crop_start_sample = cand.dedispersed.shape[0] // 2 - args.time_size // 2
-        cand.dedispersed = crop(cand.dedispersed, crop_start_sample, args.time_size, 0)
+        crop_start_sample_ft = cand.dedispersed.shape[0] // 2 - args.time_size // 2
+        cand.dedispersed = crop(cand.dedispersed, crop_start_sample_ft, args.time_size, 0)
         cand.decimate(key='ft', axis=1, pad=True, decimate_factor=cand.dedispersed.shape[1]//args.frequency_size, mode='median')
-        logging.info(f'Decimated Frequency-Time data to fsize:{args.frequency_size} and tsize:{args.time_size}')
+        logging.info(f'Decimated Frequency-Time data to fsize: {args.frequency_size} and tsize: {args.time_size}')
 
         cand.decimate(key='dmt', axis=1, pad=True, decimate_factor=time_decimate_factor)
-        logging.info(f'Decimated DM-Time to dmsize:256 and tsize:{args.time_size}')
+        crop_start_sample_dmt = cand.dmt.shape[1] // 2 - args.time_size // 2
+        cand.dmt = crop(cand.dmt, crop_start_sample_dmt, args.time_size, 1)
+        logging.info(f'Decimated DM-Time to dmsize: 256 and tsize: {args.time_size}')
 
     fout = cand.save_h5(out_dir=args.fout)
     logging.info(fout)
