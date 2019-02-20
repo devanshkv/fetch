@@ -52,7 +52,7 @@ def cand2h5(cand_val, args):
         cand.decimate(key='ft', axis=1, pad=True, decimate_factor=cand.dedispersed.shape[1]//args.frequency_size, mode='median')
         logging.info(f'Decimated Frequency-Time data to fsize: {args.frequency_size} and tsize: {args.time_size}')
 
-        cand.decimate(key='dmt', axis=1, pad=True, decimate_factor=time_decimate_factor)
+        cand.decimate(key='dmt', axis=1, pad=True, decimate_factor=time_decimate_factor, mode='median')
         crop_start_sample_dmt = cand.dmt.shape[1] // 2 - args.time_size // 2
         cand.dmt = crop(cand.dmt, crop_start_sample_dmt, args.time_size, 1)
         logging.info(f'Decimated DM-Time to dmsize: 256 and tsize: {args.time_size}')
