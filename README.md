@@ -7,7 +7,7 @@ Install
 
 You can use [anaconda](https://www.continuum.io/downloads), and install `fetch` like this:
 
-    conda install -c conda-forge tensorflow-gpu keras scikit-learn pandas scipy numpy matplotlib scikit-image scikit-image scikit-image tqdm 
+    conda install -c anaconda tensorflow-gpu keras scikit-learn pandas scipy numpy matplotlib scikit-image scikit-image scikit-image tqdm 
     git clone https://github.com/devanshkv/fetch.git
     cd fetch
     python setup.py install
