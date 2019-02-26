@@ -12,8 +12,7 @@ import pandas as pd
 from fetch.data_sequence import DataGenerator
 from fetch.utils import get_model
 
-logger = logging.getLogger()
-logging_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fast Extragalactic Transient Candiate Hunter (FETCH)")
@@ -25,6 +24,8 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--model', help='Index of the model to train', required=True)
     parser.add_argument('-p', '--probability', help='Detection threshold', default=0.5, type=float)
     args = parser.parse_args()
+
+    logging_format = '%(asctime)s - %(funcName)s -%(name)s - %(levelname)s - %(message)s'
 
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format=logging_format)

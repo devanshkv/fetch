@@ -14,8 +14,7 @@ from fetch.data_sequence import DataGenerator
 from fetch.utils import get_model
 from fetch.utils import ready_for_train
 
-logger = logging.getLogger()
-logging_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+logger = logging.getLogger(__name__)
 
 os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 
@@ -81,6 +80,8 @@ if __name__ == "__main__":
     parser.add_argument('-vs', '--val_split', help='Percent of data to use for validation', type=float, default=0.2)
     parser.add_argument('-m', '--model', help='Index of the model to train', required=True, type=str)
     args = parser.parse_args()
+
+    logging_format = '%(asctime)s - %(funcName)s -%(name)s - %(levelname)s - %(message)s'
 
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format=logging_format)
