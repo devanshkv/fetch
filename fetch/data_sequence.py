@@ -130,6 +130,8 @@ class DataGenerator(keras.utils.Sequence):
                     data_ft /= np.std(data_ft)
                     data_ft -= np.median(data_ft)
                     data_dt = np.array(f['data_dm_time'], dtype=np.float32)
+                    data_dt /= np.std(data_dt)
+                    data_dt -= np.median(data_dt)
                     X[i,] = np.reshape(data_ft, (*self.ft_dim, self.n_channels))
                     Y[i,] = np.reshape(data_dt, (*self.dt_dim, self.n_channels))
             except KeyError:
