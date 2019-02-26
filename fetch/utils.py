@@ -80,14 +80,15 @@ def get_model(model_idx):
     """
     # Get the model from the folder
     logging.info(f'Getting model {model_idx}')
-    model_yaml = glob.glob(f'models/{model_idx}_FT*/*yaml')[0]
+    path = os.path.split(__file__)[0]
+    model_yaml = glob.glob(f'{path}/models/{model_idx}_FT*/*yaml')[0]
 
     # Read the model from the yaml
     with open(model_yaml, 'r') as y:
         model = model_from_yaml(y.read())
 
     # get the model weights, if not present download them.
-    model_list = pd.read_csv('models/model_list.csv')
+    model_list = pd.read_csv(f'{path}/models/model_list.csv')
     model_index = string.ascii_lowercase.index(model_idx)
 
     weights = get_file(model_list['model'][model_index], PATH_TO_WEIGHTS + model_list['model'][model_index],
