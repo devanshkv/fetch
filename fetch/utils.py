@@ -16,7 +16,6 @@ os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 PATH_TO_WEIGHTS = 'http://psrpop.phys.wvu.edu/download.php?val='
 
 logger = logging.getLogger(__name__)
-logging_format = '%(asctime)s - %(name)s - %s(levelname)s - %(message)s'
 
 
 def open_n_layers_for_training(model, nlayers):
