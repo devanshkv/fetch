@@ -11,6 +11,13 @@ setup(
     license='GNU General Public License v3.0',
     author=['Devansh Agarwal', 'Kshitij Aggarwal'],
     author_email=['devansh.kv@gmail.com', 'ka0064@mix.wvu.edu'],
-    description='FETCH (Fast Extragalactic Transient Candidate Hunter)'
+    description='FETCH (Fast Extragalactic Transient Candidate Hunter)',
+    classifiers=[
+        'Natural Language :: English',
+        'Intended Audience :: Science/Research',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.6',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Topic :: Scientific/Engineering :: Astronomy']
 )
 
