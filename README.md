@@ -30,6 +30,6 @@ To generate the candidate h5 files containing DM-time and Frequency-time arrays,
 
         candmaker.py --frequency_size 256 --time_size 256 --cand_param_file cands.csv --plot --fout /my/candidates/
         
-A typical example of `cands.csv` file would be (here `boxcar_width` is in units of log2(number of samples)):
+A typical example of `cands.csv` file would be (here `boxcar_width` is in units of `int(log2(number of samples))`:
         
         /path/to/filterbank/myfilterbank.fil,S/N,start_time,dm,boxcar_width,label
