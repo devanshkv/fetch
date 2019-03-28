@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='fetch',
-    version='0.1.5',
+    version='0.1.8',
     packages=['fetch'],
     scripts=['bin/predict.py', 'bin/train.py', 'bin/candmaker.py'],
     package_dir={'fetch':'fetch'},
