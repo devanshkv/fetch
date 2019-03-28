@@ -15,9 +15,9 @@ from fetch.utils import get_model
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Fast Extragalactic Transient Candiate Hunter (FETCH)")
+    parser = argparse.ArgumentParser(description="Fast Extragalactic Transient Candiate Hunter (FETCH)",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--verbose', help='Be verbose', action='store_true')
-    parser.add_argument('-g', '--gpu_id', help='GPU ID', type=int, required=False, default=0)
+    parser.add_argument('-g', '--gpu_id', help='GPU ID (use -1 for CPU)', type=int, required=False, default=0)
     parser.add_argument('-n', '--nproc', help='Number of processors for training', default=4, type=int)
     parser.add_argument('-c', '--data_dir', help='Directory with candidate h5s.', required=True, type=str)
     parser.add_argument('-b', '--batch_size', help='Batch size for training data', default=8, type=int)
@@ -35,8 +35,10 @@ if __name__ == "__main__":
     if args.model not in list(string.ascii_lowercase)[:11]:
         raise ValueError(f'Model only range from a -- j.')
 
-    if args.gpu_id:
+    if args.gpu_id >= 0:
         os.environ["CUDA_VISIBLE_DEVICES"] = f'{args.gpu_id}'
+    else:
+        os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
     if args.nproc == 1:
         use_multiprocessing = True
