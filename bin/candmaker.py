@@ -60,15 +60,15 @@ def cand2h5(cand_val):
     cand.decimate(key='ft', axis=0, pad=True, decimate_factor=time_decimate_factor, mode='median')
     crop_start_sample_ft = cand.dedispersed.shape[0] // 2 - args.time_size // 2
     cand.dedispersed = crop(cand.dedispersed, crop_start_sample_ft, args.time_size, 0)
-    logging.info(f'Decimated Frequency axis of FT to fsize: {cand.dedispersed.shape[1]}')
+    logging.info(f'Decimated Time axis of FT to tsize: {cand.dedispersed.shape[0]}')
 
     if cand.dedispersed.shape[1] % args.frequency_size == 0:
         cand.decimate(key='ft', axis=1, pad=True, decimate_factor=cand.dedispersed.shape[1] // args.frequency_size,
                       mode='median')
-        logging.info(f'Decimated Time axis of FT to tsize: {cand.dedispersed.shape[0]}')
+        logging.info(f'Decimated Frequency axis of FT to fsize: {cand.dedispersed.shape[1]}')
     else:
         cand.resize(key='ft', size=args.frequency_size, axis=1, anti_aliasing=True)
-        logging.info(f'Resized Time axis of FT to tsize: {cand.dedispersed.shape[0]}')
+        logging.info(f'Resized Frequency axis of FT to fsize: {cand.dedispersed.shape[1]}')
 
     # DM-time reshaping
     cand.decimate(key='dmt', axis=1, pad=True, decimate_factor=time_decimate_factor, mode='median')
