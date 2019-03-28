@@ -126,10 +126,10 @@ class DataGenerator(keras.utils.Sequence):
         for i, ID in enumerate(list_IDs_temp):
             try:
                 with h5py.File(ID, 'r') as f:
-                    data_ft = s.detrend(np.array(f['data_freq_time'], dtype=np.float32).T)
+                    data_ft = s.detrend(np.nan_to_num(np.array(f['data_freq_time'], dtype=np.float32).T))
                     data_ft /= np.std(data_ft)
                     data_ft -= np.median(data_ft)
-                    data_dt = np.array(f['data_dm_time'], dtype=np.float32)
+                    data_dt = np.nan_to_num(np.array(f['data_dm_time'], dtype=np.float32))
                     data_dt /= np.std(data_dt)
                     data_dt -= np.median(data_dt)
                     X[i,] = np.reshape(data_ft, (*self.ft_dim, self.n_channels))
