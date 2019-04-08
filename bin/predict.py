@@ -65,6 +65,7 @@ if __name__ == "__main__":
     # Save results
     results_dict = {}
     results_dict['candidate'] = cands_to_eval
-    results_dict['probability'] = np.round(probs[:, 1] >= args.probability)
-    results_file = args.data_dir + '/results.csv'
+    results_dict['probability'] = probs[:,1]
+    results_dict['label'] = np.round(probs[:, 1] >= args.probability)
+    results_file = args.data_dir + f'/results_{args.model}.csv'
     pd.DataFrame(results_dict).to_csv(results_file)
