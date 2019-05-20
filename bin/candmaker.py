@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import pathlib
 from multiprocessing import Pool
 
 import numpy as np
@@ -33,8 +34,15 @@ def cand2h5(cand_val):
     :type cand_val: Candidate
     :return: None
     """
-    fil_name, snr, width, dm, label, tcand, args = cand_val
-    cand = Candidate(fil_name, snr=snr, width=width, dm=dm, label=label, tcand=tcand)
+    fil_name, snr, width, dm, label, tcand, kill_mask_path, args = cand_val
+    kill_mask_file = pathlib.Path(kill_mask_path)
+    if kill_mask_file.is_file():
+        loggin.info(f'Using mask {kill_mask_path}')
+        kill_mask = np.loadtxt(kill_mask_path, dtype=np.bool)
+    else:
+        kill_mask = None
+
+    cand = Candidate(fil_name, snr=snr, width=width, dm=dm, label=label, tcand=tcand, kill_mask=kill_mask)
     cand.get_chunk()
     cand.fp.close()
     logging.info('Got Chunk')
@@ -108,10 +116,12 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO, format=logging_format)
 
-    cand_pars = pd.read_csv(values.cand_param_file, names=['fil_file', 'snr', 'stime', 'dm', 'width', 'label'])
+    cand_pars = pd.read_csv(values.cand_param_file,
+                            names=['fil_file', 'snr', 'stime', 'dm', 'width', 'label', 'kill_mask_path'])
     process_list = []
     for index, row in cand_pars.iterrows():
         process_list.append(
-            [row['fil_file'], row['snr'], 2 ** row['width'], row['dm'], row['label'], row['stime'], values])
+            [row['fil_file'], row['snr'], 2 ** row['width'], row['dm'], row['label'], row['stime'],
+             row['kill_mask_path'], values])
     with Pool(processes=values.nproc) as pool:
         pool.map(cand2h5, process_list, chunksize=1)
