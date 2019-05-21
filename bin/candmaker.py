@@ -7,6 +7,7 @@ from multiprocessing import Pool
 
 import numpy as np
 import pandas as pd
+from pysigproc import SigprocFile
 from candidate import Candidate, crop
 from h5plotter import plot_h5
 
@@ -19,8 +20,7 @@ def normalise(data):
     :param data: data
     :return:
     """
-    if not isinstance(data, np.float64):
-        data = np.array(data, dtype=np.float64)
+    data = np.array(data, dtype=np.float32)
     data -= np.median(data)
     data /= np.std(data)
     return data
@@ -35,11 +35,17 @@ def cand2h5(cand_val):
     :return: None
     """
     fil_name, snr, width, dm, label, tcand, kill_mask_path, args = cand_val
-    kill_mask_file = pathlib.Path(kill_mask_path)
-    if kill_mask_file.is_file():
-        loggin.info(f'Using mask {kill_mask_path}')
-        kill_mask = np.loadtxt(kill_mask_path, dtype=np.bool)
+    if kill_mask_path == kill_mask_path:
+        kill_mask_file = pathlib.Path(kill_mask_path)
+        if kill_mask_file.is_file():
+            logging.info(f'Using mask {kill_mask_path}')
+            kill_chans = np.loadtxt(kill_mask_path, dtype=np.int)
+            filobj = SigprocFile(fil_name)
+            kill_mask = np.zeros(filobj.nchans, dtype=np.bool)
+            kill_mask[kill_chans]= True
+
     else:
+        logging.debug('No Kill Mask')
         kill_mask = None
 
     cand = Candidate(fil_name, snr=snr, width=width, dm=dm, label=label, tcand=tcand, kill_mask=kill_mask)
