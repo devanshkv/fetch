@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     # get's get predicting
     probs = model.predict_generator(generator=cand_datagen, verbose=1, use_multiprocessing=use_multiprocessing,
-                                    workers=args.nproc)
+                                    workers=args.nproc, steps=len(cand_datagen))
 
     # Save results
     results_dict = {}
