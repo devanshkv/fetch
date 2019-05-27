@@ -23,7 +23,7 @@ __Note__: `tensorflow` installation from `conda-forge` channel does not work wit
 
 Now we can install `fetch` like this:
 
-    conda install -c anaconda tensorflow-gpu keras scikit-learn pandas scipy numpy matplotlib scikit-image tqdm pyyaml=3.13
+    conda install -c anaconda tensorflow-gpu keras scikit-learn pandas scipy numpy matplotlib scikit-image tqdm numba pyyaml=3.13
     git clone https://github.com/devanshkv/fetch.git
     cd fetch
     python setup.py install
