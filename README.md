@@ -9,21 +9,20 @@ We suggest using [anaconda](https://www.continuum.io/downloads) for using FETCH.
 
 First we need to install cudatoolkit matching the installed cuda version.
 
-For cuda 7.5 `conda install cudatoolkit==7.5`
+For cuda 8.0 `conda install -c anaconda cudatoolkit==8.0 tensorflow-gpu==1.4.0`
 
-For cuda 8.0 `conda install cudatoolkit==8.0`
+For cuda 9.0 `conda install -c anaconda cudatoolkit==9.0 tensorflow-gpu==1.12.0`
 
-For cuda 9.0 `conda install cudatoolkit==9.0`
+For cuda 9.2 `conda install -c anaconda cudatoolkit==9.2 tensorflow-gpu==1.12.0`
 
-For cuda 9.2 `conda install cudatoolkit==9.2`
-
-For cuda 10. `conda install cudatoolkit==10.0.130`
+For cuda 10. `conda install -c anaconda cudatoolkit==10.0.130 tensorflow-gpu==1.13.1`
 
 __Note__: `tensorflow` installation from `conda-forge` channel does not work with GPUs.
 
+
 Now we can install `fetch` like this:
 
-    conda install -c anaconda tensorflow-gpu keras scikit-learn pandas scipy numpy matplotlib scikit-image tqdm numba pyyaml=3.13
+    conda install -c anaconda keras scikit-learn pandas scipy numpy matplotlib scikit-image tqdm numba pyyaml=3.13
     git clone https://github.com/devanshkv/fetch.git
     cd fetch
     python setup.py install
