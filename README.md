@@ -9,7 +9,7 @@ We suggest using [anaconda](https://www.continuum.io/downloads) for using FETCH.
 
 First we need to install cudatoolkit matching the installed cuda version.
 
-For cuda 8.0 `conda install -c anaconda cudatoolkit==8.0 tensorflow-gpu==1.4.0`
+For cuda 8.0 `conda install -c anaconda cudatoolkit==8.0 tensorflow-gpu==1.4.1`
 
 For cuda 9.0 `conda install -c anaconda cudatoolkit==9.0 tensorflow-gpu==1.12.0`
 
