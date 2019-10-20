@@ -53,3 +53,37 @@ To fine-tune the model `a`, with a bunch of candidates, put them in a pandas rea
         train.py --data_csv candidates.csv --model a --output_path ./
         
 This would train the model `a` and save the training log, and model weights in the output path.
+
+Example
+___
+Test filterbank data can be downloaded from [here](http://astro.phys.wvu.edu/files/askap_frb_180417.tgz). The folder contains three filterbanks: 28.fil  29.fil  34.fil.
+Heimdall results for each of the files are as follows:
+
+for 28.fil
+
+    16.8128	1602	2.02888	1	127	475.284	22	1601	1604
+for 29.fil
+
+    18.6647	1602	2.02888	1	127	475.284	16	1601	1604
+for 34.fil
+
+    13.9271	1602	2.02888	1	127	475.284	12	1602	1604 
+
+The `cand.csv` would look like the following:
+
+    28.fil,16.8128,2.02888,475.284,1
+    29.fil,18.6647,2.02888,475.284,1
+    34.fil,13.9271,2.02888,475.284,1
+    
+Running `candmaker.py` will create three files:
+
+    cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_13.92710.h5
+    cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_16.81280.h5
+    cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_18.66470.h5
+
+Running `predict.py` with model `a` will give `results_a.csv`:
+
+    ,candidate,probability,label
+    0,cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_18.66470.h5,1.0,1.0
+    1,cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_16.81280.h5,1.0,1.0
+    2,cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_13.92710.h5,1.0,1.0
