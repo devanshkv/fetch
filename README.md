@@ -54,7 +54,8 @@ To fine-tune the model `a`, with a bunch of candidates, put them in a pandas rea
 This would train the model `a` and save the training log, and model weights in the output path.
 
 Example
-___
+---
+
 Test filterbank data can be downloaded from [here](http://astro.phys.wvu.edu/files/askap_frb_180417.tgz). The folder contains three filterbanks: 28.fil  29.fil  34.fil.
 Heimdall results for each of the files are as follows:
 
