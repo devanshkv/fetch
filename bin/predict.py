@@ -50,6 +50,10 @@ if __name__ == "__main__":
         raise ValueError(f'Model only range from a -- j.')
 
     cands_to_eval = glob.glob(f'{args.data_dir}/*h5')
+
+    if len(cands_to_eval) == 0:
+        raise FileNotFoundError(f"No candidates to evaluate.")
+
     logging.debug(f'Read {len(cands_to_eval)} candidates')
 
     # Get the data generator, make sure noise and shuffle are off.
