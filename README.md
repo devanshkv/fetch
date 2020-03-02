@@ -87,3 +87,9 @@ Running `predict.py` with model `a` will give `results_a.csv`:
     0,cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_18.66470.h5,1.0,1.0
     1,cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_16.81280.h5,1.0,1.0
     2,cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_13.92710.h5,1.0,1.0
+    
+    
+Training Data
+---
+
+The training data is available at [astro.phys.wvu.edu/fetch](astro.phys.wvu.edu/fetch).
