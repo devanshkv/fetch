@@ -33,7 +33,7 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.INFO, format=logging_format)
 
     if args.model not in list(string.ascii_lowercase)[:11]:
-        raise ValueError(f'Model only range from a -- j.')
+        raise ValueError(f'Model only range from a -- k.')
 
     if args.gpu_id >= 0:
         os.environ["CUDA_VISIBLE_DEVICES"] = f'{args.gpu_id}'
@@ -45,9 +45,6 @@ if __name__ == "__main__":
         logging.info(f'Using multiprocessing with {args.nproc} workers')
     else:
         use_multiprocessing = False
-
-    if args.model not in list(string.ascii_lowercase)[:11]:
-        raise ValueError(f'Model only range from a -- j.')
 
     cands_to_eval = glob.glob(f'{args.data_dir}/*h5')
 
