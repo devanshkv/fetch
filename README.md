@@ -92,4 +92,4 @@ Running `predict.py` with model `a` will give `results_a.csv`:
 Training Data
 ---
 
-The training data is available at [astro.phys.wvu.edu/fetch](astro.phys.wvu.edu/fetch).
+The training data is available at [astro.phys.wvu.edu/fetch](http://astro.phys.wvu.edu/fetch/).
