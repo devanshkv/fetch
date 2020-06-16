@@ -1,5 +1,15 @@
 # FETCH
 
+[![issues](https://img.shields.io/github/issues/devanshkv/fetch?style=flat-square)](https://github.com/devanshkv/fetch/issues)
+[![forks](https://img.shields.io/github/forks/devanshkv/fetch?style=flat-square)](https://github.com/devanshkv/fetch/network/members)
+[![stars](https://img.shields.io/github/stars/devanshkv/fetch?style=flat-square)](https://github.com/devanshkv/fetch/stargazers)
+[![GitHub license](https://img.shields.io/github/license/devanshkv/fetch?style=flat-square)](https://github.com/devanshkv/fetch/blob/master/LICENSE)
+[![HitCount](http://hits.dwyl.com/devanshkv/fetch.svg)](http://hits.dwyl.com/devanshkv/fetch)
+[![arXiv](https://img.shields.io/badge/arXiv-1902.06343-brightgreen.svg?style=flat-square)](https://arxiv.org/abs/1902.06343)
+[![Twitter](https://img.shields.io/twitter/url?url=https%3A%2F%2Fgithub.com%2Fdevanshkv%2Ffetch)]()
+
+
+
 fetch is Fast Extragalactic Transient Candidate Hunter. It has been detailed in the paper [Towards deeper neural networks for Fast Radio Burst detection](https://arxiv.org/abs/1902.06343)
 
 Install
