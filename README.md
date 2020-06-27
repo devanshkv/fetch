@@ -11,7 +11,7 @@
 
 
 
-fetch is Fast Extragalactic Transient Candidate Hunter. It has been detailed in the paper [Towards deeper neural networks for Fast Radio Burst detection](https://arxiv.org/abs/1902.06343).
+fetch is Fast Extragalactic Transient Candidate Hunter. It has been detailed in the paper [FETCH: A deep-learning based classifier for fast transient classification](https://arxiv.org/abs/1902.06343).
 
 Install
 ---
