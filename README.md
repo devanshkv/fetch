@@ -7,11 +7,11 @@
 [![GitHub license](https://img.shields.io/github/license/devanshkv/fetch)](https://github.com/devanshkv/fetch/blob/master/LICENSE)
 [![HitCount](http://hits.dwyl.com/devanshkv/fetch.svg)](http://hits.dwyl.com/devanshkv/fetch)
 [![arXiv](https://img.shields.io/badge/arXiv-1902.06343-brightgreen.svg)](https://arxiv.org/abs/1902.06343)
-[![Twitter](https://img.shields.io/twitter/url?url=https%3A%2F%2Fgithub.com%2Fdevanshkv%2Ffetch)]()
+[![Twitter](https://img.shields.io/twitter/url?url=https%3A%2F%2Fgithub.com%2Fdevanshkv%2Ffetch)](https://twitter.com/KshitijAgg13)
 
 
 
-fetch is Fast Extragalactic Transient Candidate Hunter. It has been detailed in the paper [Towards deeper neural networks for Fast Radio Burst detection](https://arxiv.org/abs/1902.06343)
+fetch is Fast Extragalactic Transient Candidate Hunter. It has been detailed in the paper [Towards deeper neural networks for Fast Radio Burst detection](https://arxiv.org/abs/1902.06343).
 
 Install
 ---
@@ -104,3 +104,32 @@ Training Data
 ---
 
 The training data is available at [astro.phys.wvu.edu/fetch](http://astro.phys.wvu.edu/fetch/).
+
+## Citating this work
+___
+
+If you use this work please cite:
+
+    @article{Agarwal2020,
+      doi = {10.1093/mnras/staa1856},
+      url = {https://doi.org/10.1093/mnras/staa1856},
+      year = {2020},
+      month = jun,
+      publisher = {Oxford University Press ({OUP})},
+      author = {Devansh Agarwal and Kshitij Aggarwal and Sarah Burke-Spolaor and Duncan R Lorimer and Nathaniel Garver-Daniels},
+      title = {{FETCH}: A deep-learning based classifier for fast transient classification},
+      journal = {Monthly Notices of the Royal Astronomical Society}
+    }
+    @software{agarwal_aggarwal_2020,
+      author       = {Devansh Agarwal and
+                      Kshitij Aggarwal},
+      title        = {{devanshkv/fetch: Software release with the 
+                       manuscript}},
+      month        = jun,
+      year         = 2020,
+      publisher    = {Zenodo},
+      version      = {0.1.8},
+      doi          = {10.5281/zenodo.3905437},
+      url          = {https://doi.org/10.5281/zenodo.3905437}
+    }
+
