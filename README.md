@@ -1,49 +1,23 @@
 # FETCH
 
-fetch is Fast Extragalactic Transient Candidate Hunter. It has been detailed in the paper [Towards deeper neural networks for Fast Radio Burst detection](https://arxiv.org/abs/1902.06343)
+fetch is Fast Extragalactic Transient Candidate Hunter. It has been detailed in the paper [Towards deeper neural networks for Fast Radio Burst detection](https://arxiv.org/abs/1902.06343).
 
-Install
+This is the `tensorflow>=2` version of the fetch, if you are looking for the older tensorflow version click [here](https://github.com/devanshkv/fetch/archive/0.1.8.tar.gz).
+
+Install 
 ---
-
-We suggest using [anaconda](https://www.continuum.io/downloads) for using FETCH.
-
-First we need to install cudatoolkit matching the installed cuda version.
-
-For cuda 8.0 `conda install -c anaconda cudatoolkit==8.0 tensorflow-gpu==1.4.1`
-
-For cuda 9.0 `conda install -c anaconda cudatoolkit==9.0 tensorflow-gpu==1.12.0`
-
-For cuda 9.2 `conda install -c anaconda cudatoolkit==9.2 tensorflow-gpu==1.12.0`
-
-For cuda 10. `conda install -c anaconda cudatoolkit==10.0.130 tensorflow-gpu==1.13.1`
-
-__Note__: `tensorflow` installation from `conda-forge` channel does not work with GPUs.
-
-You would also require `pysigproc` to create the candidate files which can be found [here](https://github.com/devanshkv/pysigproc).
-
-
-Now we can install `fetch` like this:
-
-    conda install -c anaconda keras scikit-learn pandas scipy numpy matplotlib scikit-image tqdm numba pyyaml=3.13
     git clone https://github.com/devanshkv/fetch.git
     cd fetch
+    pip install -r requirements.txt
     python setup.py install
 
-The installation will put `predict.py`,`candmaker.py` and `train.py` in your `PYTHONPATH`.
+The installation will put `predict.py` and `train.py` in your `PYTHONPATH`.
 
 Usage
 ---
-First create a candidate file (`cands.csv`) of the following format:
+To use fetch, you would first have to create candidates. Use [`your`](https://thepetabyteproject.github.io/your/) for this purpose, [this notebook](https://thepetabyteproject.github.io/your/ipynb/Candidate/) explains the whole process. Your also comes with a command line script [`your_candmaker.py`](https://thepetabyteproject.github.io/your/bin/your_candmaker/) which allows you to use CPU or single/multiple GPUs. 
 
-    /path/to/filterbank/myfilterbank.fil,S/N,start_time,dm,boxcar_width,label,path_to_kill_mask
-       
-here `boxcar_width` is in units of `int(log2(number of samples))`. `path_to_kill_mask` is a numpy readable file with channel numbers to kill. If not required, this field can be left empty.
-
-Next, to generate the candidate files containing DM-time and Frequency-time arrays for classification use `candmaker.py`. Saving candidate h5s with their parameters in `cands.csv` to a directory `/data/canddidates/` and rebinning the time and frequency axis to 256 bins using decimation can be done by: 
-
-    candmaker.py --frequency_size 256 --time_size 256 --cand_param_file cands.csv --plot --fout /data/candidates/
-       
-To predict a these candidate h5 files living in the directory `/data/candidates/` use `predict.py` for model `a` as follows:
+To predict a candidate h5 files living in the directory `/data/candidates/` use `predict.py` for model `a` as follows:
 
     predict.py --data_dir /data/candidates/ --model a
         
@@ -71,11 +45,12 @@ for 34.fil
 
 The `cand.csv` would look like the following:
 
-    28.fil,16.8128,2.02888,475.284,1
-    29.fil,18.6647,2.02888,475.284,1
-    34.fil,13.9271,2.02888,475.284,1
-    
-Running `candmaker.py` will create three files:
+    file,snr,stime,width,dm,label,chan_mask_path,num_files
+    28.fil,16.8128,2.02888,1,475.284,1,,1
+    29.fil,18.6647,2.02888,1,475.284,1,,1
+    34.fil,13.9271,2.02888,1,475.284,1,,1
+
+Running `your_candmaker.py` will create three files:
 
     cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_13.92710.h5
     cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_16.81280.h5

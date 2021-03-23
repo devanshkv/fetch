@@ -7,13 +7,13 @@ import string
 
 import numpy as np
 import pandas as pd
-from keras.models import Model
-from keras.models import model_from_yaml
-from keras.optimizers import Adam
-from keras.utils import get_file
+from tensorflow.keras.models import Model
+from tensorflow.keras.models import model_from_yaml
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.utils import get_file
 
 os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
-PATH_TO_WEIGHTS = 'http://psrpop.phys.wvu.edu/download.php?val='
+PATH_TO_WEIGHTS = "http://psrpop.phys.wvu.edu/download.php?val="
 
 logger = logging.getLogger(__name__)
 
@@ -63,10 +63,14 @@ def ready_for_train(model, nf, ndt, nft):
     model_trainable = Model(model.inputs, model.outputs)
 
     # Adam optimizer with imagenet defaults
-    optimizer = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+    optimizer = Adam(
+        lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False
+    )
 
     # Compile
-    model_trainable.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
+    model_trainable.compile(
+        optimizer=optimizer, loss="binary_crossentropy", metrics=["accuracy"]
+    )
 
     return model_trainable
 
@@ -79,20 +83,25 @@ def get_model(model_idx):
     :return: Model
     """
     # Get the model from the folder
-    logging.info(f'Getting model {model_idx}')
+    logger.info(f"Getting model {model_idx}")
     path = os.path.split(__file__)[0]
-    model_yaml = glob.glob(f'{path}/models/{model_idx}_FT*/*yaml')[0]
+    model_yaml = glob.glob(f"{path}/models/{model_idx}_FT*/*yaml")[0]
 
     # Read the model from the yaml
-    with open(model_yaml, 'r') as y:
+    with open(model_yaml, "r") as y:
         model = model_from_yaml(y.read())
 
     # get the model weights, if not present download them.
-    model_list = pd.read_csv(f'{path}/models/model_list.csv')
+    model_list = pd.read_csv(f"{path}/models/model_list.csv")
     model_index = string.ascii_lowercase.index(model_idx)
 
-    weights = get_file(model_list['model'][model_index], PATH_TO_WEIGHTS + model_list['model'][model_index],
-                       file_hash=model_list['hash'][model_index], cache_subdir='models', hash_algorithm='md5')
+    weights = get_file(
+        model_list["model"][model_index],
+        PATH_TO_WEIGHTS + model_list["model"][model_index],
+        file_hash=model_list["hash"][model_index],
+        cache_subdir="models",
+        hash_algorithm="md5",
+    )
 
     # dump weights
     model.load_weights(weights)
