@@ -35,6 +35,10 @@ def cand2h5(cand_val):
     :return: None
     """
     fil_name, snr, width, dm, label, tcand, kill_mask_path, args = cand_val
+    #get the time of the pulse
+    tstart = fil_name.find('pow_')
+    tend = fil_name.find('_sb')
+    pulse_t = fil_name[tstart:tend-3]
     if kill_mask_path == kill_mask_path:
         kill_mask_file = pathlib.Path(kill_mask_path)
         if kill_mask_file.is_file():
@@ -92,8 +96,8 @@ def cand2h5(cand_val):
 
     cand.dmt = normalise(cand.dmt)
     cand.dedispersed = normalise(cand.dedispersed)
-
-    fout = cand.save_h5(out_dir=args.fout)
+    fout = label.strip('.fil')+'_dm_'+str(dm)+'_snr_'+str(snr)+'.h5'
+    fout = cand.save_h5(out_dir=args.fout,fnout=fout)
     logging.info(fout)
     if args.plot:
         logging.info('Displaying the candidate')
