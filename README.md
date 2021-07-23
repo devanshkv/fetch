@@ -1,5 +1,16 @@
 # FETCH
 
+
+[![DOI](https://zenodo.org/badge/165734093.svg?style=flat-square)](https://zenodo.org/badge/latestdoi/165734093)
+[![issues](https://img.shields.io/github/issues/devanshkv/fetch)](https://github.com/devanshkv/fetch/issues)
+[![forks](https://img.shields.io/github/forks/devanshkv/fetch)](https://github.com/devanshkv/fetch/network/members)
+[![stars](https://img.shields.io/github/stars/devanshkv/fetch)](https://github.com/devanshkv/fetch/stargazers)
+[![GitHub license](https://img.shields.io/github/license/devanshkv/fetch)](https://github.com/devanshkv/fetch/blob/master/LICENSE)
+[![HitCount](http://hits.dwyl.com/devanshkv/fetch.svg)](http://hits.dwyl.com/devanshkv/fetch)
+[![arXiv](https://img.shields.io/badge/arXiv-1902.06343-brightgreen.svg)](https://arxiv.org/abs/1902.06343)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+
 fetch is Fast Extragalactic Transient Candidate Hunter. It has been detailed in the paper [Towards deeper neural networks for Fast Radio Burst detection](https://arxiv.org/abs/1902.06343).
 
 This is the `tensorflow>=2` version of the fetch, if you are looking for the older tensorflow version click [here](https://github.com/devanshkv/fetch/archive/0.1.8.tar.gz).
@@ -62,3 +73,36 @@ Running `predict.py` with model `a` will give `results_a.csv`:
     0,cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_18.66470.h5,1.0,1.0
     1,cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_16.81280.h5,1.0,1.0
     2,cand_tstart_58682.620316710374_tcand_2.0288800_dm_475.28400_snr_13.92710.h5,1.0,1.0
+    
+Training Data
+---
+
+The training data is available at [astro.phys.wvu.edu/fetch](http://astro.phys.wvu.edu/fetch/).
+
+## Citating this work
+___
+
+If you use this work please cite:
+
+    @article{Agarwal2020,
+      doi = {10.1093/mnras/staa1856},
+      url = {https://doi.org/10.1093/mnras/staa1856},
+      year = {2020},
+      month = jun,
+      publisher = {Oxford University Press ({OUP})},
+      author = {Devansh Agarwal and Kshitij Aggarwal and Sarah Burke-Spolaor and Duncan R Lorimer and Nathaniel Garver-Daniels},
+      title = {{FETCH}: A deep-learning based classifier for fast transient classification},
+      journal = {Monthly Notices of the Royal Astronomical Society}
+    }
+    @software{agarwal_aggarwal_2020,
+      author       = {Devansh Agarwal and
+                      Kshitij Aggarwal},
+      title        = {{devanshkv/fetch: Software release with the 
+                       manuscript}},
+      month        = jun,
+      year         = 2020,
+      publisher    = {Zenodo},
+      version      = {0.1.8},
+      doi          = {10.5281/zenodo.3905437},
+      url          = {https://doi.org/10.5281/zenodo.3905437}
+    }
