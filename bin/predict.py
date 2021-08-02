@@ -83,7 +83,8 @@ if __name__ == "__main__":
         cands_to_eval = glob.glob(f"{data_dir}/*h5")
 
         if len(cands_to_eval) == 0:
-            raise FileNotFoundError(f"No candidates to evaluate.")
+            logger.warning(f"No candidates to evaluate in directory: {data_dir}")
+            continue
 
         logging.debug(f"Read {len(cands_to_eval)} candidates")
 
@@ -112,4 +113,4 @@ if __name__ == "__main__":
         results_dict["label"] = np.round(probs[:, 1] >= args.probability)
         results_file = data_dir + f"/results_{args.model}.csv"
         pd.DataFrame(results_dict).to_csv(results_file)
-
+    
