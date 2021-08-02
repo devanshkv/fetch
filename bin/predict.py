@@ -37,6 +37,7 @@ if __name__ == "__main__":
         help="Directory with candidate h5s.",
         required=True,
         type=str,
+        action='append'
     )
     parser.add_argument(
         "-b", "--batch_size", help="Batch size for training data", default=8, type=int
@@ -75,37 +76,40 @@ if __name__ == "__main__":
     if args.model not in list(string.ascii_lowercase)[:11]:
         raise ValueError(f"Model only range from a -- j.")
 
-    cands_to_eval = glob.glob(f"{args.data_dir}/*h5")
-
-    if len(cands_to_eval) == 0:
-        raise FileNotFoundError(f"No candidates to evaluate.")
-
-    logging.debug(f"Read {len(cands_to_eval)} candidates")
-
-    # Get the data generator, make sure noise and shuffle are off.
-    cand_datagen = DataGenerator(
-        list_IDs=cands_to_eval,
-        labels=[0] * len(cands_to_eval),
-        shuffle=False,
-        noise=False,
-        batch_size=args.batch_size,
-    )
-
     model = get_model(args.model)
+    
+    for data_dir in args.data_dir:
 
-    # get's get predicting
-    probs = model.predict_generator(
-        generator=cand_datagen,
-        verbose=1,
-        use_multiprocessing=use_multiprocessing,
-        workers=args.nproc,
-        steps=len(cand_datagen),
-    )
+        cands_to_eval = glob.glob(f"{data_dir}/*h5")
 
-    # Save results
-    results_dict = {}
-    results_dict["candidate"] = cands_to_eval
-    results_dict["probability"] = probs[:, 1]
-    results_dict["label"] = np.round(probs[:, 1] >= args.probability)
-    results_file = args.data_dir + f"/results_{args.model}.csv"
-    pd.DataFrame(results_dict).to_csv(results_file)
+        if len(cands_to_eval) == 0:
+            raise FileNotFoundError(f"No candidates to evaluate.")
+
+        logging.debug(f"Read {len(cands_to_eval)} candidates")
+
+        # Get the data generator, make sure noise and shuffle are off.
+        cand_datagen = DataGenerator(
+            list_IDs=cands_to_eval,
+            labels=[0] * len(cands_to_eval),
+            shuffle=False,
+            noise=False,
+            batch_size=args.batch_size,
+        )
+
+        # get's get predicting
+        probs = model.predict_generator(
+            generator=cand_datagen,
+            verbose=1,
+            use_multiprocessing=use_multiprocessing,
+            workers=args.nproc,
+            steps=len(cand_datagen),
+        )
+
+        # Save results
+        results_dict = {}
+        results_dict["candidate"] = cands_to_eval
+        results_dict["probability"] = probs[:, 1]
+        results_dict["label"] = np.round(probs[:, 1] >= args.probability)
+        results_file = data_dir + f"/results_{args.model}.csv"
+        pd.DataFrame(results_dict).to_csv(results_file)
+
