@@ -6,7 +6,7 @@ setup(
     packages=["fetch"],
     scripts=["bin/predict.py", "bin/train.py"],
     package_dir={"fetch": "fetch"},
-    package_data={"fetch": ["models/model_list.csv", "models/*/*yaml"]},
+    package_data={"fetch": ["models/model_list.csv", "models/*/*"]},
     url="https://github.com/devanshkv/fetch",
     tests_require=["pytest", "pytest-cov"],
     license="GNU General Public License v3.0",
