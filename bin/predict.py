@@ -67,7 +67,7 @@ if __name__ == "__main__":
     else:
         os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
-    if args.nproc == 1:
+    if args.nproc > 1:
         use_multiprocessing = True
         logging.info(f"Using multiprocessing with {args.nproc} workers")
     else:
