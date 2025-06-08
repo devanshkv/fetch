@@ -1,12 +1,21 @@
 import numpy as np
 import h5py  # Added to read H5 files
+import scipy.signal as s
 import tensorflow as tf
 import torch
 from fetch.models.a_FT_DenseNet121_2_DMT_Xception_13_256.a4 import CombinedModel, load_custom_keras_model_weights
 from fetch.utils import get_model
 
-def preprocess_data(data):
-    """Apply exact preprocessing pipeline used in both generators"""
+def preprocess_ft_data(data):
+    """Apply FT preprocessing pipeline"""
+    data = np.nan_to_num(data)  # Replace NaNs
+    data = s.detrend(data)       # Remove linear trend
+    data = data - np.median(data)
+    data = data / np.std(data)
+    return data
+
+def preprocess_dt_data(data):
+    """Apply DT preprocessing pipeline"""
     data = np.nan_to_num(data)  # Replace NaNs
     data = data - np.median(data)
     data = data / np.std(data)
@@ -15,12 +24,13 @@ def preprocess_data(data):
 def test_model_equivalence(h5_file_path, test_data_path):
     # Load and preprocess test data from H5 file
     with h5py.File(test_data_path, 'r') as f:
-        ft_data = f['data_freq_time'][:].T.astype(np.float32)  # Match .T in DataGenerator
+        # Read FT data and transpose to match generator processing
+        ft_data = f['data_freq_time'][:].T.astype(np.float32)
         dt_data = f['data_dm_time'][:].astype(np.float32)
     
-    # Apply standardized preprocessing
-    ft_processed = preprocess_data(ft_data)
-    dt_processed = preprocess_data(dt_data)
+    # Apply separate preprocessing for FT/DT data
+    ft_processed = preprocess_ft_data(ft_data)
+    dt_processed = preprocess_dt_data(dt_data)
     
     # Prepare inputs (add batch and channel dimensions)
     tf_input_ft = ft_processed[None, :, :, None]  # Batch, H, W, Channels
