@@ -6,7 +6,7 @@ from fetch.utils import get_model
 
 def test_model_equivalence(h5_file_path):
     # Generate two separate inputs
-    np.random.seed(42)
+    #np.random.seed(42)
     input_shape = (1, 256, 256, 1)  # TF shape: (batch, height, width, channels)
     dummy_input_ft = np.random.randn(*input_shape).astype(np.float32)
     dummy_input_dt = np.random.randn(*input_shape).astype(np.float32)
