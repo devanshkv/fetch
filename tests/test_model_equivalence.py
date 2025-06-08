@@ -1,33 +1,34 @@
 import numpy as np
-import h5py
 import tensorflow as tf
 import torch
 from fetch.models.a_FT_DenseNet121_2_DMT_Xception_13_256.a4 import CombinedModel, load_custom_keras_model_weights
-from fetch.utils import get_model, ready_for_train
+from fetch.utils import get_model
 
 def test_model_equivalence(h5_file_path):
-    # Generate dummy input
+    # Generate two separate inputs
     np.random.seed(42)
-    input_shape = (1, 1, 256, 256)  # TF input shape (batch, height, width, channels)
-    dummy_input = np.random.randn(*input_shape).astype(np.float32)
+    input_shape = (1, 256, 256, 1)  # TF shape: (batch, height, width, channels)
+    dummy_input_ft = np.random.randn(*input_shape).astype(np.float32)
+    dummy_input_dt = np.random.randn(*input_shape).astype(np.float32)
     
     # TensorFlow model setup
     tf_model = get_model('a')
-    #tf_model = ready_for_train(tf_model, ndt=0, nft=0, nf=1)
     
     # PyTorch model setup
     torch_model = CombinedModel(num_classes=2)
     load_custom_keras_model_weights(torch_model, h5_file_path)
     torch_model.eval()
     
-    # TF prediction
-    tf_input = tf.convert_to_tensor(dummy_input)
-    tf_output = tf_model.predict(tf_input)
+    # TF prediction - pass both inputs separately
+    tf_output = tf_model.predict([dummy_input_ft, dummy_input_dt])
     
-    # Torch prediction (transpose to channels-first)
-    torch_input = torch.from_numpy(dummy_input)  # (batch, channels, height,  width)
+    # Convert to channels-first for PyTorch: (N, C, H, W)
+    torch_input_ft = torch.from_numpy(dummy_input_ft).permute(0, 3, 1, 2)
+    torch_input_dt = torch.from_numpy(dummy_input_dt).permute(0, 3, 1, 2)
+    
+    # PyTorch prediction - pass both inputs with correct shape
     with torch.no_grad():
-        torch_output = torch_model(torch_input, torch_input).numpy()
+        torch_output = torch_model(torch_input_ft, torch_input_dt).numpy()
     
     # Compare outputs
     print("\n--- Results ---")
@@ -35,7 +36,7 @@ def test_model_equivalence(h5_file_path):
     print(f"PyTorch output: {torch_output[0]}")
     print(f"Output difference: {np.abs(tf_output - torch_output).max()}")
     
-    # Check if outputs are close
+    # Check if outputs are close (using relaxed tolerance due to numerical differences)
     if np.allclose(tf_output, torch_output, atol=1e-4):
         print("✅ Outputs match within tolerance!")
     else:
