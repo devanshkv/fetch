@@ -2,6 +2,7 @@ import numpy as np
 import h5py
 import pandas as pd
 import torch
+import scipy.signal as s
 from tqdm import tqdm
 from tensorflow import keras
 from fetch.models.a_FT_DenseNet121_2_DMT_Xception_13_256.a4 import CombinedModel, load_custom_keras_model_weights
@@ -9,11 +10,11 @@ from fetch.utils import get_model
 
 
 def preprocess_ft_data(data):
-    "Apply FT preprocessing: transpose, subtract median, divide by std"
-    data = data.T
-    data = data.copy()
-    data -= np.median(data)
-    data /= np.std(data)
+    """Apply FT preprocessing pipeline"""
+    data = np.nan_to_num(data)  # Replace NaNs
+    data = s.detrend(data)       # Remove linear trend
+    data = data - np.median(data)
+    data = data / np.std(data)
     return data
 
 def preprocess_dm_data(data):
@@ -42,7 +43,7 @@ def test_bulk_data(keras_weights_path, bulk_data_path):
         total_samples = len(labels)
         
         results = []
-        batch_size = 100  # Process in batches for efficiency
+        batch_size = 8  # Process in batches for efficiency
         
         for start_idx in tqdm(range(0, total_samples, batch_size)):
             end_idx = min(start_idx + batch_size, total_samples)
