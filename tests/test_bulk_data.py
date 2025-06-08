@@ -35,24 +35,30 @@ def test_bulk_data(keras_weights_path, bulk_data_path):
     pt_model.eval()
     
     # Open bulk dataset
+    results = []
+    batch_size = 64  # Process in batches for memory efficiency
+    
     with h5py.File(bulk_data_path, 'r') as hf:
-        # Load all data into memory
-        dm_data = hf['data_dm_time'][:]
-        ft_data = hf['data_freq_time'][:]
-        labels = hf['data_labels'][:]
-        total_samples = len(labels)
-        
-        results = []
-        batch_size = 8  # Process in batches for efficiency
+        dm_dset = hf['data_dm_time']
+        ft_dset = hf['data_freq_time']
+        labels_dset = hf['data_labels']
+        total_samples = len(labels_dset)
         
         for start_idx in tqdm(range(0, total_samples, batch_size)):
             end_idx = min(start_idx + batch_size, total_samples)
-            batch_results = []
             
-            for i in range(start_idx, end_idx):
-                # Preprocess data
-                ft_processed = preprocess_ft_data(ft_data[i, ..., 0])
-                dm_processed = preprocess_dm_data(dm_data[i, ..., 0])
+            # Load batch data
+            dm_batch = dm_dset[start_idx:end_idx]
+            ft_batch = ft_dset[start_idx:end_idx]
+            labels_batch = labels_dset[start_idx:end_idx]
+            
+            for i, (dm_sample, ft_sample, label) in enumerate(zip(dm_batch, ft_batch, labels_batch)):
+                idx = start_idx + i  # Global sample index
+                
+                # Preprocess FT data
+                ft_processed = preprocess_ft_data(ft_sample[..., 0].T)  # Transpose for FT
+                # Preprocess DM data
+                dm_processed = preprocess_dm_data(dm_sample[..., 0])
                 
                 # TF prediction
                 tf_in_ft = ft_processed[np.newaxis, ..., np.newaxis]
@@ -67,14 +73,12 @@ def test_bulk_data(keras_weights_path, bulk_data_path):
                 pt_prob = pt_out[1]
                 
                 # Collect results
-                batch_results.append({
-                    'sample_id': i,
+                results.append({
+                    'sample_id': idx,
                     'tf_output': tf_prob,
                     'pt_output': pt_prob,
-                    'label': int(labels[i])
+                    'label': int(label)
                 })
-            
-            results.extend(batch_results)
     
     # Save results
     df = pd.DataFrame(results)
