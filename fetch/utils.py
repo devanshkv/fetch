@@ -13,7 +13,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.utils import get_file
 
 os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
-PATH_TO_WEIGHTS = "http://psrpop.phys.wvu.edu/download.php?val="
+PATH_TO_WEIGHTS = "https://zenodo.org/records/5029590/files/"
 
 logger = logging.getLogger(__name__)
 
