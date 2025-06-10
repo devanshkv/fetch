@@ -1,7 +1,8 @@
 import numpy as np
 import h5py
 import torch
-from tensorflow import keras
+import tensorflow as tf
+from tensorflow.keras.models import Model
 from fetch.models.a_FT_DenseNet121_2_DMT_Xception_13_256.a4 import CombinedModel, load_custom_keras_model_weights
 from fetch.utils import get_model
 from rich.console import Console
@@ -9,46 +10,44 @@ from rich.table import Table
 
 c = Console()
 
-def preprocess_ft_data(data):
-    data = np.nan_to_num(data)
-    data = data - np.median(data)
-    data = data / np.std(data)
-    return data
-
-def preprocess_dm_data(data):
-    data = data.copy()
-    data -= np.median(data)
-    data /= np.std(data)
-    return data
-
-def get_layer_output(model, input_data, layer_name):
-    """Get the output of a specific layer by name"""
-    intermediate_model = keras.Model(
-        inputs=model.inputs,
-        outputs=model.get_layer(layer_name).output
-    )
-    return intermediate_model.predict(input_data)
+def create_tf_intermediate_model(tf_model):
+    """Create models to extract intermediate layer outputs from TensorFlow model"""
+    layer_names = [
+        'conv2d_1__0',
+        'densenet121__0',
+        'xception__1',
+        'batch_normalization_5',
+        'batch_normalization_6',
+        'dropout_1',
+        'dropout_2',
+        'dense_1',
+        'dense_2',
+        'batch_normalization_7',
+        'dense_3'
+    ]
+    outputs = [tf_model.get_layer(name).output for name in layer_names]
+    return Model(inputs=tf_model.inputs, outputs=outputs), layer_names
 
 def debug_sample(keras_weights_path, bulk_data_path, sample_id):
-    # Load TF model
+    # Load TensorFlow model and create intermediate models
     tf_model = get_model("a")
+    tf_intermediate_model, tf_layer_names = create_tf_intermediate_model(tf_model)
 
     # Load PyTorch model
     pt_model = CombinedModel(num_classes=2)
     load_custom_keras_model_weights(pt_model, keras_weights_path)
     pt_model.eval()
 
-    # Open bulk dataset
     with h5py.File(bulk_data_path, "r") as hf:
         dm_sample = hf["data_dm_time"][sample_id]
         ft_sample = hf["data_freq_time"][sample_id]
         label = hf["data_labels"][sample_id]
 
-    # Preprocess
-    ft_processed = preprocess_ft_data(ft_sample[..., 0].T)
-    dm_processed = preprocess_dm_data(dm_sample[..., 0])
+    # Preprocess data
+    ft_processed = (ft_sample[..., 0].T - np.median(ft_sample[..., 0])) / np.std(ft_sample[..., 0])
+    dm_processed = (dm_sample[..., 0] - np.median(dm_sample[..., 0])) / np.std(dm_sample[..., 0])
 
-    # TF input
+    # TensorFlow input
     tf_in_ft = ft_processed[np.newaxis, ..., np.newaxis]
     tf_in_dm = dm_processed[np.newaxis, ..., np.newaxis]
 
@@ -56,77 +55,74 @@ def debug_sample(keras_weights_path, bulk_data_path, sample_id):
     pt_in_ft = torch.tensor(ft_processed[np.newaxis, np.newaxis, ...], dtype=torch.float32)
     pt_in_dm = torch.tensor(dm_processed[np.newaxis, np.newaxis, ...], dtype=torch.float32)
 
-    # ====== TF INTERMEDIATE LOGIC (UPDATED) ======
-    layer_names = ['conv2d_1__0', 'conv2d_2__1',
-                  'densenet121__0', 'xception__1',
-                  'batch_normalization_5', 'batch_normalization_6',
-                  'dropout_1', 'dropout_2',
-                  'dense_1', 'dense_2',
-                  'batch_normalization_7']
+    # Get TensorFlow intermediate outputs
+    tf_outputs = tf_intermediate_model.predict([tf_in_ft, tf_in_dm], verbose=0)
 
-    tf_intermediate = [
-        get_layer_output(tf_model, [tf_in_ft, tf_in_dm], name)
-        for name in layer_names
-    ]
-
-    # ====== PT INTERMEDIATE LOGIC ======
+    # Get PyTorch intermediate outputs
     with torch.no_grad():
-        pt_output, pt_intermediate = pt_model(pt_in_ft, pt_in_dm)
+        _, pt_debug = pt_model(pt_in_ft, pt_in_dm)
 
     # Prepare comparison table
     table = Table(title=f"Layer-wise Comparison - Sample ID {sample_id}")
     table.add_column("Layer", justify="left")
-    table.add_column("TensorFlow", justify="center")
-    table.add_column("PyTorch", justify="center")
-    table.add_column("Max Diff", justify="center")
+    table.add_column("TensorFlow Shape", justify="center")
+    table.add_column("PyTorch Shape", justify="center")
+    table.add_column("Max Abs Diff", justify="center")
+    table.add_column("Max Rel Diff (%)", justify="center")
 
-    # Compare key layers
-    layers_to_compare = {
-        'input_freq': (tf_in_ft, pt_in_ft),
-        'input_dm': (tf_in_dm, pt_in_dm),
-        'conv_freq': (tf_intermediate[0], pt_intermediate['after_conv_freq']),
-        'conv_dm': (tf_intermediate[1], pt_intermediate['after_conv_dm']),
-        'ft_features': (tf_intermediate[2], pt_intermediate['ft_features']),
-        'dt_features': (tf_intermediate[3], pt_intermediate['dt_features']),
-        'ft_bn': (tf_intermediate[4], pt_intermediate['ft_bn_out']),
-        'dt_bn': (tf_intermediate[5], pt_intermediate['dt_bn_out']),
-        'after_dense1': (tf_intermediate[8], pt_intermediate['after_dense1']),
-        'after_dense2': (tf_intermediate[9], pt_intermediate['after_dense2']),
-        'after_multiply': (None, pt_intermediate['after_multiply'])
+    # Comparison map (TF layer names to PT debug keys)
+    tf_to_pt_map = {
+        'conv2d_1__0': 'after_conv_freq',
+        'conv2d_2__1': 'after_conv_dm',
+        'densenet121__0': 'ft_features',
+        'xception__1': 'dt_features',
+        'dense_1': 'after_dense1',
+        'dense_2': 'after_dense2',
+        'batch_normalization_5': 'ft_bn_out',
+        'batch_normalization_6': 'dt_bn_out',
+        'dropout_1': 'ft_after_dropout',
+        'dropout_2': 'dt_after_dropout',
     }
 
-    for name, (tf_val, pt_val) in layers_to_compare.items():
-        if tf_val is None:
-            # Multiplication layer doesn't exist in TF
-            continue
+    for tf_layer_name, tf_out in zip(tf_layer_names, tf_outputs):
+        # Handle TF outputs (convert to numpy if needed)
+        tf_data = tf_out.squeeze()
 
-        # Convert to numpy and flatten for comparison
-        pt_np = pt_val.numpy()
-        diff = np.abs(tf_val - pt_np).max()
+        # Get corresponding PyTorch output
+        if tf_layer_name in tf_to_pt_map:
+            pt_key = tf_to_pt_map[tf_layer_name]
+            pt_data = pt_debug[pt_key].squeeze().numpy()
+            valid_comparison = True
+        else:
+            c.print(f"[yellow]Warning: No mapping for {tf_layer_name}[/yellow]")
+            pt_data = np.zeros_like(tf_data)
+            valid_comparison = False
 
-        # Format values for display
-        def format_arr(arr):
-            arr = arr.squeeze()
-            if arr.size > 3:
-                return f"min: {arr.min():.4f}, max: {arr.max():.4f}, mean: {arr.mean():.4f}"
-            return str(arr.round(4))
+        # Calculate differences
+        abs_diff = np.abs(tf_data - pt_data).max()
+        rel_diff = 100 * abs_diff / (np.abs(tf_data).max() + 1e-9)
 
+        # Add table row
         table.add_row(
-            name,
-            format_arr(tf_val),
-            format_arr(pt_np),
-            f"{diff:.6f}"
+            tf_layer_name,
+            str(tf_out.squeeze().shape),
+            str(pt_debug[tf_to_pt_map[tf_layer_name]].squeeze().shape) if valid_comparison else "N/A",
+            f"{abs_diff:.4e}",
+            f"{rel_diff:.2f}%" if valid_comparison else "N/A"
         )
 
     c.print(table)
     c.print(f"[bold]Sample Label:[/bold] {label}")
+    c.print(f"[bold green]TF Final Output:[/bold green] {tf_model.predict([tf_in_ft, tf_in_dm])}")
+    with torch.no_grad():
+        c.print(f"[bold blue]PT Final Output:[/bold blue] {pt_model(pt_in_ft, pt_in_dm)[0].numpy()}")
 
 if __name__ == "__main__":
     keras_weights = "/workspaces/fetch/weights/a_ft_DenseNet121_2_dt_Xception_13_256.h5"
     bulk_data = "/workspaces/fetch/test_data.hdf5"
 
-    # Run for sample 2931 (shown discrepancy)
+    # Test with sample 2931
     debug_sample(keras_weights, bulk_data, 2931)
 
-    # Run for sample 3709 (shown discrepancy)
-    debug_sample(keras_weights, bulk_data, 3709)
+    # Add more samples as needed
+    # debug_sample(keras_weights, bulk_data, 3709)
