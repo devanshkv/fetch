@@ -7,8 +7,10 @@ from fetch.models.a_FT_DenseNet121_2_DMT_Xception_13_256.a4 import CombinedModel
 from fetch.utils import get_model
 from rich.console import Console
 from rich.table import Table
+import logging
 
 c = Console()
+logger = logging.getLogger(__name__)
 
 def create_tf_intermediate_function(tf_model):
     """Create a function to get intermediate outputs from TensorFlow model"""
