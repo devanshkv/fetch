@@ -50,10 +50,11 @@ def debug_sample(keras_weights_path, bulk_data_path, sample_id):
 
     # ====== TF INTERMEDIATE LOGIC ======
     # Create new model capturing intermediate values
+    # Updated layer names to match actual model architecture
     layer_names = ['conv2d_1__0', 'conv2d_2__1',
                   'densenet121__0', 'xception__1',
                   'batch_normalization_5', 'batch_normalization_6',
-                  'dropout__0', 'dropout__1',
+                  'dropout_1', 'dropout_2',  # Changed from 'dropout__0' and 'dropout__1'
                   'dense_1', 'dense_2',
                   'batch_normalization_7']
 
