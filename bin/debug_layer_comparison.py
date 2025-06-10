@@ -21,6 +21,14 @@ def preprocess_dm_data(data):
     data /= np.std(data)
     return data
 
+def get_layer_output(model, input_data, layer_name):
+    """Get the output of a specific layer by name"""
+    intermediate_model = keras.Model(
+        inputs=model.inputs,
+        outputs=model.get_layer(layer_name).output
+    )
+    return intermediate_model.predict(input_data)
+
 def debug_sample(keras_weights_path, bulk_data_path, sample_id):
     # Load TF model
     tf_model = get_model("a")
@@ -48,19 +56,18 @@ def debug_sample(keras_weights_path, bulk_data_path, sample_id):
     pt_in_ft = torch.tensor(ft_processed[np.newaxis, np.newaxis, ...], dtype=torch.float32)
     pt_in_dm = torch.tensor(dm_processed[np.newaxis, np.newaxis, ...], dtype=torch.float32)
 
-    # ====== TF INTERMEDIATE LOGIC ======
-    # Create new model capturing intermediate values
-    # Updated layer names to match actual model architecture
+    # ====== TF INTERMEDIATE LOGIC (UPDATED) ======
     layer_names = ['conv2d_1__0', 'conv2d_2__1',
                   'densenet121__0', 'xception__1',
                   'batch_normalization_5', 'batch_normalization_6',
-                  'dropout_1', 'dropout_2',  # Changed from 'dropout__0' and 'dropout__1'
+                  'dropout_1', 'dropout_2',
                   'dense_1', 'dense_2',
                   'batch_normalization_7']
 
-    outputs = [tf_model.get_layer(name).output for name in layer_names]
-    debug_model = keras.Model(inputs=tf_model.inputs, outputs=outputs)
-    tf_intermediate = debug_model([tf_in_ft, tf_in_dm])
+    tf_intermediate = [
+        get_layer_output(tf_model, [tf_in_ft, tf_in_dm], name)
+        for name in layer_names
+    ]
 
     # ====== PT INTERMEDIATE LOGIC ======
     with torch.no_grad():
