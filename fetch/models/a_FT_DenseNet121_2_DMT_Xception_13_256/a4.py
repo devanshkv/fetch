@@ -18,7 +18,6 @@ class KerasDenseNet121FeatureExtractor(nn.Module):
         pooled_features = F.adaptive_max_pool2d(features, (1, 1)).flatten(start_dim=1)
         return pooled_features
 
-
 class KerasXceptionFeatureExtractor(nn.Module):
     def __init__(self):
         super().__init__()
@@ -31,7 +30,6 @@ class KerasXceptionFeatureExtractor(nn.Module):
         features = self.xception.forward_features(x)
         pooled_features = F.adaptive_max_pool2d(features, (1, 1)).flatten(start_dim=1)
         return pooled_features
-
 
 class CombinedModel(nn.Module):
     def __init__(self, num_classes=2):
@@ -66,37 +64,61 @@ class CombinedModel(nn.Module):
         self.final_dense = nn.Linear(256, num_classes)
 
     def forward(self, data_freq_time, data_dm_time):
+        # ======== NEW DEBUG OUTPUTS ========
+        from collections import OrderedDict
+        debug_outputs = OrderedDict()
+
+        # Track initial input
+        debug_outputs['input_freq'] = data_freq_time
+        debug_outputs['input_dm'] = data_dm_time
+
+        # Track after preprocessing layers
         x_freq = self.relu_freq(self.conv_freq(data_freq_time))
         x_dm = self.relu_dm(self.conv_dm(data_dm_time))
+        debug_outputs['after_conv_freq'] = x_freq
+        debug_outputs['after_conv_dm'] = x_dm
 
+        # Track feature extractor outputs
         d_features = self.densenet_features_extractor(x_freq)
         x_features = self.xception_features_extractor(x_dm)
+        debug_outputs['ft_features'] = d_features
+        debug_outputs['dt_features'] = x_features
 
+        # Track after normalization
         d_bn = self.bn_densenet_out(d_features)
         x_bn = self.bn_xception_out(x_features)
+        debug_outputs['ft_bn_out'] = d_bn
+        debug_outputs['dt_bn_out'] = x_bn
 
+        # Track after dropout
         d_dropped = self.dropout_densenet(d_bn)
         x_dropped = self.dropout_xception(x_bn)
+        debug_outputs['ft_after_dropout'] = d_dropped
+        debug_outputs['dt_after_dropout'] = x_dropped
 
+        # Track after dense layers
         d_dense = self.dense1(d_dropped)
         x_dense = self.dense2(x_dropped)
+        debug_outputs['after_dense1'] = d_dense
+        debug_outputs['after_dense2'] = x_dense
 
+        # Track multiplication output
         multiplied = d_dense * x_dense
+        debug_outputs['after_multiply'] = multiplied
 
+        # Track final layers
         bn_multiplied = self.bn_multiply_out(multiplied)
         activated_multiplied = self.relu_multiply_out(bn_multiplied)
-
         output = self.final_dense(activated_multiplied)
         output = F.softmax(output, -1)
-        return output
 
+        return output, debug_outputs  # Return both final output and debug info
 
 # --- Keras Weight Loading Utilities (ensure these are the latest correct versions from previous steps) ---
 def _get_original_keras_layer_name(keras_layer_unique_name):
     if "__" in keras_layer_unique_name:
         return keras_layer_unique_name.split("__")[0]
     return keras_layer_unique_name
-
 
 def _try_get_keras_dataset(hf, base_path_in_h5, original_layer_name, dataset_suffixes):
     for suffix in dataset_suffixes:
@@ -111,7 +133,6 @@ def _try_get_keras_dataset(hf, base_path_in_h5, original_layer_name, dataset_suf
         except KeyError:
             continue
     return None
-
 
 def _list_group_keys(hf, group_path):
     paths_to_check = [group_path]
@@ -130,7 +151,6 @@ def _list_group_keys(hf, group_path):
                     )
         else:
             print(f"    HDF5 group '{p}' not found for listing keys.")
-
 
 def _load_keras_weights_conv2d(pytorch_conv_layer, hf, keras_layer_full_path_base):
     original_name = _get_original_keras_layer_name(
@@ -166,7 +186,6 @@ def _load_keras_weights_conv2d(pytorch_conv_layer, hf, keras_layer_full_path_bas
             f"Error processing/assigning Conv2D weights for {keras_layer_full_path_base}: {e}"
         )
 
-
 def _load_keras_weights_dense(pytorch_linear_layer, hf, keras_layer_full_path_base):
     original_name = _get_original_keras_layer_name(
         keras_layer_full_path_base.split("/")[-1]
@@ -200,7 +219,6 @@ def _load_keras_weights_dense(pytorch_linear_layer, hf, keras_layer_full_path_ba
         print(
             f"Error processing/assigning Dense weights for {keras_layer_full_path_base}: {e}"
         )
-
 
 def _load_keras_weights_batchnorm(pytorch_bn_layer, hf, keras_layer_full_path_base):
     original_name = _get_original_keras_layer_name(
@@ -238,7 +256,6 @@ def _load_keras_weights_batchnorm(pytorch_bn_layer, hf, keras_layer_full_path_ba
             f"Error assigning BatchNorm weights for {keras_layer_full_path_base}: {e}"
         )
 
-
 def _load_keras_weights_separable_conv2d(
     timm_sep_conv_layer, hf, keras_layer_full_path_base
 ):
@@ -272,7 +289,6 @@ def _load_keras_weights_separable_conv2d(
         print(
             f"Error processing/assigning SeparableConv2D weights for {keras_layer_full_path_base}: {e}"
         )
-
 
 # --- load_timm_densenet_weights (should be correct from previous version) ---
 def load_timm_densenet_weights(timm_densenet_model, hf, keras_model_base_path_in_h5):
@@ -336,7 +352,6 @@ def load_timm_densenet_weights(timm_densenet_model, hf, keras_model_base_path_in
         timm_densenet_model.features.norm5, hf, f"{keras_model_base_path_in_h5}/bn"
     )
     print("DenseNet weight loading attempt finished.")
-
 
 def load_timm_xception_weights(timm_xception_model, hf, keras_model_base_path_in_h5):
     print(f"Loading Xception weights from H5 base path: {keras_model_base_path_in_h5}")
@@ -513,7 +528,6 @@ def load_timm_xception_weights(timm_xception_model, hf, keras_model_base_path_in
     )
     print("Xception weight loading attempt finished.")
 
-
 # --- load_custom_keras_model_weights (main loader) ---
 def load_custom_keras_model_weights(pytorch_model, keras_h5_path):
     h5_file_prefix = "model_weights"
@@ -570,7 +584,6 @@ def load_custom_keras_model_weights(pytorch_model, keras_h5_path):
     print(
         "Review any 'KeyError' or other error messages above to debug specific layer loading issues."
     )
-
 
 if __name__ == "__main__":
     pytorch_model = CombinedModel(num_classes=2)
