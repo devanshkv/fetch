@@ -110,9 +110,10 @@ class CombinedModel(nn.Module):
         bn_multiplied = self.bn_multiply_out(multiplied)
         activated_multiplied = self.relu_multiply_out(bn_multiplied)
         output = self.final_dense(activated_multiplied)
-        output = F.softmax(output, -1)
+        soft_output = F.softmax(output, -1)
+        debug_outputs['final'] = soft_output
 
-        return output, debug_outputs  # Return both final output and debug info
+        return soft_output, debug_outputs  # Return both final output and debug info
 
 # --- Keras Weight Loading Utilities (ensure these are the latest correct versions from previous steps) ---
 def _get_original_keras_layer_name(keras_layer_unique_name):

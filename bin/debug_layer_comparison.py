@@ -10,28 +10,43 @@ from rich.table import Table
 
 c = Console()
 
-def create_tf_intermediate_model(tf_model):
-    """Create models to extract intermediate layer outputs from TensorFlow model"""
+def create_tf_intermediate_function(tf_model):
+    """Create a function to get intermediate outputs from TensorFlow model"""
+    from tensorflow.keras import backend as K
+
+    # Simplify layer selection - focus on critical comparison points
     layer_names = [
-        'conv2d_1__0',
-        'densenet121__0',
-        'xception__1',
-        'batch_normalization_5',
-        'batch_normalization_6',
-        'dropout_1',
-        'dropout_2',
-        'dense_1',
-        'dense_2',
-        'batch_normalization_7',
-        'dense_3'
+        'conv2d_1__0',     # FT branch output
+        'conv2d_2__1',     # DM branch output
+        'ft_features',      # Post DenseNet features
+        'dt_features',      # Post Xception features
+        'after_dense1',
+        'after_dense2',
+        'dense_3'           # Final output layer
     ]
-    outputs = [tf_model.get_layer(name).output for name in layer_names]
-    return Model(inputs=tf_model.inputs, outputs=outputs), layer_names
+
+    # Create output tensors using more robust layer retrieval
+    outputs = []
+    valid_names = []
+    for name in layer_names:
+        try:
+            # Special handling for head layers
+            if name == 'ft_features':
+                outputs.append(tf_model.get_layer('dense_1').input)
+            elif name == 'dt_features':
+                outputs.append(tf_model.get_layer('dense_2').input)
+            else:
+                outputs.append(tf_model.get_layer(name).output)
+            valid_names.append(name)
+        except:
+            logger.warning(f"Layer {name} not found in model")
+
+    return K.function(tf_model.inputs, outputs), valid_names
 
 def debug_sample(keras_weights_path, bulk_data_path, sample_id):
     # Load TensorFlow model and create intermediate models
     tf_model = get_model("a")
-    tf_intermediate_model, tf_layer_names = create_tf_intermediate_model(tf_model)
+    tf_intermediate_function, tf_layer_names = create_tf_intermediate_function(tf_model)
 
     # Load PyTorch model
     pt_model = CombinedModel(num_classes=2)
@@ -56,7 +71,7 @@ def debug_sample(keras_weights_path, bulk_data_path, sample_id):
     pt_in_dm = torch.tensor(dm_processed[np.newaxis, np.newaxis, ...], dtype=torch.float32)
 
     # Get TensorFlow intermediate outputs
-    tf_outputs = tf_intermediate_model.predict([tf_in_ft, tf_in_dm], verbose=0)
+    tf_outputs = tf_intermediate_function([tf_in_ft, tf_in_dm])
 
     # Get PyTorch intermediate outputs
     with torch.no_grad():
@@ -70,18 +85,15 @@ def debug_sample(keras_weights_path, bulk_data_path, sample_id):
     table.add_column("Max Abs Diff", justify="center")
     table.add_column("Max Rel Diff (%)", justify="center")
 
-    # Comparison map (TF layer names to PT debug keys)
+    # Updated layer mapping in debug_sample
     tf_to_pt_map = {
         'conv2d_1__0': 'after_conv_freq',
         'conv2d_2__1': 'after_conv_dm',
-        'densenet121__0': 'ft_features',
-        'xception__1': 'dt_features',
-        'dense_1': 'after_dense1',
-        'dense_2': 'after_dense2',
-        'batch_normalization_5': 'ft_bn_out',
-        'batch_normalization_6': 'dt_bn_out',
-        'dropout_1': 'ft_after_dropout',
-        'dropout_2': 'dt_after_dropout',
+        'ft_features': 'ft_features',
+        'dt_features': 'dt_features',
+        'after_dense1': 'after_dense1',
+        'after_dense2': 'after_dense2',
+        'dense_3': 'final'  # Final output
     }
 
     for tf_layer_name, tf_out in zip(tf_layer_names, tf_outputs):
@@ -102,11 +114,17 @@ def debug_sample(keras_weights_path, bulk_data_path, sample_id):
         abs_diff = np.abs(tf_data - pt_data).max()
         rel_diff = 100 * abs_diff / (np.abs(tf_data).max() + 1e-9)
 
-        # Add table row
+        # Add table row - handle final output differently
+        tf_shape = str(tf_out.squeeze().shape)
+        if 'final' in pt_key:
+            pt_shape = str(pt_data.shape)
+        else:
+            pt_shape = str(pt_data.squeeze().shape)
+
         table.add_row(
             tf_layer_name,
-            str(tf_out.squeeze().shape),
-            str(pt_debug[tf_to_pt_map[tf_layer_name]].squeeze().shape) if valid_comparison else "N/A",
+            tf_shape,
+            pt_shape,
             f"{abs_diff:.4e}",
             f"{rel_diff:.2f}%" if valid_comparison else "N/A"
         )
