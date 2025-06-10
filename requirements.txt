@@ -3,3 +3,6 @@ tensorflow[and-cuda]>=2.12
 numpy>=1.19.5
 h5py>=3.1.0
 scipy>=1.6.0
+tf2onnx
+onnx
+onnx2torch
