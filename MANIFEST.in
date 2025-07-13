@@ -1,2 +1,0 @@
-include fetch/models/*.csv
-include fetch/models/*/*yaml
