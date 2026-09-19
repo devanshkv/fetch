@@ -109,8 +109,12 @@ class DataGenerator(keras.utils.Sequence):
         :param indexes: indexes
         :return: Batch of data and labels
         """
-        X = np.empty((len(list_IDs_temp), *self.ft_dim, self.n_channels))
-        Y = np.empty((len(list_IDs_temp), *self.dt_dim, self.n_channels))
+        X = np.empty(
+            (len(list_IDs_temp), *self.ft_dim, self.n_channels), dtype=np.float32
+        )
+        Y = np.empty(
+            (len(list_IDs_temp), *self.dt_dim, self.n_channels), dtype=np.float32
+        )
         y = np.empty((len(list_IDs_temp)), dtype=int)
 
         # Generate data
