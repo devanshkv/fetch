@@ -6,6 +6,10 @@ import logging
 import os
 import string
 
+# tensorflow.keras resolves on import, so this is set before it; see
+# fetch/__init__.py.
+os.environ.setdefault("TF_USE_LEGACY_KERAS", "1")
+
 import numpy as np
 import pandas as pd
 from tensorflow.keras.utils import OrderedEnqueuer, Progbar
