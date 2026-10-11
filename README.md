@@ -31,7 +31,13 @@ To use fetch, you would first have to create candidates. Use [`your`](https://th
 To predict a candidate h5 files living in the directory `/data/candidates/` use `predict.py` for model `a` as follows:
 
     predict.py --data_dir /data/candidates/ --model a
-        
+
+More than one model can be given, and they then share a single pass over the
+candidates rather than each re-reading them, which is much quicker than running
+`predict.py` once per model. Each still writes its own `results_<model>.csv`:
+
+    predict.py --data_dir /data/candidates/ --model a b c
+
 To fine-tune the model `a`, with a bunch of candidates, put them in a pandas readable csv, `candidate.csv` with headers 'h5' and 'label'. Use
 
     train.py --data_csv candidates.csv --model a --output_path ./

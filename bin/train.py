@@ -5,6 +5,10 @@ import logging
 import os
 import string
 
+# tensorflow.keras resolves on import, so this is set before it; see
+# fetch/__init__.py.
+os.environ.setdefault("TF_USE_LEGACY_KERAS", "1")
+
 import pandas as pd
 from tensorflow.keras.callbacks import EarlyStopping, CSVLogger, ModelCheckpoint
 from tensorflow.keras.models import Model
