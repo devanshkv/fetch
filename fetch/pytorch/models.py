@@ -13,8 +13,9 @@ from fetch.pytorch.keras_graph import from_keras_h5
 logger = logging.getLogger(__name__)
 
 PATH_TO_WEIGHTS = "https://zenodo.org/records/5029590/files/"
-# where tf.keras.utils.get_file keeps them, so the two versions share one download
-CACHE_DIR = os.path.join(os.path.expanduser("~"), ".keras", "models")
+# FETCH_MODEL_DIR (e.g. weights baked into a container), else where tf.keras.utils.get_file
+# keeps them, so the two versions share one download
+CACHE_DIR = os.environ.get("FETCH_MODEL_DIR") or os.path.join(os.path.expanduser("~"), ".keras", "models")
 MODEL_LIST = os.path.join(os.path.dirname(os.path.dirname(__file__)), "models", "model_list.csv")
 
 

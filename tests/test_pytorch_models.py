@@ -1,7 +1,7 @@
 """
 The eleven PyTorch models against TensorFlow FETCH, and predict_torch.py end to end.
 
-They need the Keras weight files in ~/.keras/models (where FETCH keeps them); a model whose file
+They need the Keras weight files in $FETCH_MODEL_DIR or ~/.keras/models; a model whose file
 isn't there is skipped, unless FETCH_TEST_DOWNLOAD=1, which downloads it (100-400 MB each).
 """
 import os
