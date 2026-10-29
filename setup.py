@@ -3,8 +3,8 @@ from setuptools import setup
 setup(
     name="fetch",
     version="0.2.0",
-    packages=["fetch"],
-    scripts=["bin/predict.py", "bin/train.py"],
+    packages=["fetch", "fetch.pytorch"],
+    scripts=["bin/predict.py", "bin/predict_torch.py", "bin/train.py"],
     package_dir={"fetch": "fetch"},
     package_data={"fetch": ["models/model_list.csv", "models/*/*"]},
     url="https://github.com/devanshkv/fetch",
