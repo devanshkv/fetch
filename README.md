@@ -19,10 +19,30 @@ Install
 ---
     git clone https://github.com/devanshkv/fetch.git
     cd fetch
-    pip install -r requirements.txt
-    python setup.py install
+    pip install ".[torch]"         # predict_torch.py (PyTorch)
+    pip install ".[tensorflow]"    # predict.py and train.py (TensorFlow)
 
-The installation will put `predict.py` and `train.py` in your `PYTHONPATH`.
+Install either or both. The installation puts `predict.py`, `predict_torch.py` and `train.py` on your `PATH`.
+
+PyTorch
+---
+`predict_torch.py` runs the same eleven models with PyTorch. It takes `predict.py`'s arguments and writes the same
+`results_<model>.csv`:
+
+    predict_torch.py --data_dir /data/candidates/ --model a
+
+`--model` also takes several models (`--model abc`, or `--model abcdefghijk` for all eleven), which share one read
+of the candidates, and `--data_dir` can be given more than once.
+
+- **Weights**: each model is built from its original Keras weight file. As for `predict.py`, the file is downloaded on
+  first use into `~/.keras/models/` and checked against its md5 in `fetch/models/model_list.csv`. Set
+  `FETCH_MODEL_DIR` to read the weights from another directory, for example inside a container.
+- **Agreement with TensorFlow**: on the same candidates, all eleven models' probabilities agree with `predict.py`'s
+  to within a few times 1e-4, with no label changes. On Ampere and newer GPUs TensorFlow uses TF32 by default, so its
+  own probabilities can move by up to ~1e-2 from run to run; `predict_torch.py` uses full float32 and gives the same
+  result every time.
+- **Speed**: per model, about 2x (Pascal) to 4x (Ampere) faster than `predict.py` on a GPU.
+- **Inference only**: `train.py` still uses TensorFlow.
 
 Usage
 ---
