@@ -3,6 +3,7 @@ The eleven PyTorch models against TensorFlow FETCH, and predict_torch.py end to 
 
 They need the Keras weight files in $FETCH_MODEL_DIR or ~/.keras/models; a model whose file
 isn't there is skipped, unless FETCH_TEST_DOWNLOAD=1, which downloads it (100-400 MB each).
+FETCH_TEST_MODELS (e.g. "a") limits the tests to those models; the rest are skipped.
 """
 import os
 import string
@@ -40,6 +41,8 @@ MODELS = string.ascii_lowercase[:11]
 
 
 def have_weights(m):
+    if m not in os.environ.get("FETCH_TEST_MODELS", MODELS):
+        return False
     name = pd.read_csv(MODEL_LIST)["model"][MODELS.index(m)]
     return os.path.exists(os.path.join(CACHE_DIR, name)) or os.environ.get("FETCH_TEST_DOWNLOAD") == "1"
 
@@ -86,9 +89,10 @@ def test_matches_tensorflow(models, m):
         assert close(prob, EXPECTED[name][m]), f"model {m}, {name}: {prob} vs {EXPECTED[name][m]}"
 
 
-@needs_weights("a", "h")
 @pytest.mark.parametrize("m", ["a", "h"])
 def test_batching_doesnt_change_results(models, m):
+    if not have_weights(m):
+        pytest.skip(f"no weights for model {m}")
     names = list(TEST_FILES)
     with torch.inference_mode():
         together = models(m)(*batch(names))[:, 1].numpy()
@@ -105,15 +109,17 @@ def test_folding_batchnorm_doesnt_change_results(models):
     np.testing.assert_allclose(folded, unfolded, rtol=1e-4, atol=1e-6)
 
 
-@needs_weights("a", "j")
+@needs_weights("a")
 def test_predict_torch_script(tmp_path):
+    # two models when j is available too, to cover one read of the h5s feeding several models
+    run = "aj" if have_weights("j") else "a"
     for name, path in TEST_FILES.items():
         os.symlink(path, tmp_path / name)
     script = os.path.join(os.path.dirname(HERE), "bin", "predict_torch.py")
     env = dict(os.environ, PYTHONPATH=os.path.dirname(HERE))
-    subprocess.run([sys.executable, script, "-c", str(tmp_path), "-m", "aj", "-g", "-1", "-n", "1", "-b", "2"],
+    subprocess.run([sys.executable, script, "-c", str(tmp_path), "-m", run, "-g", "-1", "-n", "1", "-b", "2"],
                    check=True, env=env)
-    for m in "aj":
+    for m in run:
         results = pd.read_csv(tmp_path / f"results_{m}.csv", index_col=0)
         assert list(results.columns) == ["candidate", "probability", "label"]
         for _, row in results.iterrows():

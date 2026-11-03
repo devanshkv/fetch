@@ -1,4 +1,9 @@
-"""Reads candidate h5 files into model inputs, preprocessed exactly as fetch.data_sequence.DataGenerator does."""
+"""
+Reads candidate h5 files into model inputs, preprocessed exactly as fetch.data_sequence.DataGenerator does.
+
+The one difference is a candidate containing NaN: scipy's detrend refuses it, so DataGenerator raises and
+predict.py stops for the whole directory. Here NaNs are set to 0 before detrending and the candidate is scored.
+"""
 import os
 
 import h5py

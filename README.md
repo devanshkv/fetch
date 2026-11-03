@@ -43,6 +43,14 @@ of the candidates, and `--data_dir` can be given more than once.
   result every time.
 - **Speed**: per model, about 2x (Pascal) to 4x (Ampere) faster than `predict.py` on a GPU.
 - **Inference only**: `train.py` still uses TensorFlow.
+- **Log messages on PyTorch 2.13 and 2.14**: lines like `CUDACachingAllocator.cpp ... memory allocation failed with
+  OOM ... while trying to allocate 9154068480 bytes` are harmless. cuDNN asks for a large workspace, PyTorch's
+  allocator retries with less, and the results are unaffected; PyTorch logs every such retry as a warning in these
+  versions ([pytorch#193195](https://github.com/pytorch/pytorch/issues/193195)). PyTorch 2.15 no longer prints them;
+  on older versions `TORCH_CPP_LOG_LEVEL=ERROR` hides them. (2.14 with CUDA 12.6 is the last official build with Pascal
+  support, e.g. for TITAN Xp GPUs.)
+- **Candidates containing NaN** are scored with the NaNs set to 0. `predict.py` stops at such a file instead, because
+  scipy's `detrend` refuses NaN.
 
 Usage
 ---
