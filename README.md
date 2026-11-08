@@ -38,9 +38,10 @@ of the candidates, and `--data_dir` can be given more than once.
   first use into `~/.keras/models/` and checked against its md5 in `fetch/models/model_list.csv`. Set
   `FETCH_MODEL_DIR` to read the weights from another directory, for example inside a container.
 - **Agreement with TensorFlow**: on the same candidates, all eleven models' probabilities agree with `predict.py`'s
-  to within a few times 1e-4, with no label changes. On Ampere and newer GPUs TensorFlow uses TF32 by default, so its
-  own probabilities can move by up to ~1e-2 from run to run; `predict_torch.py` uses full float32 and gives the same
-  result every time.
+  to within a few times 1e-4, with no label changes. Where the GPU supports it, TensorFlow uses TF32 by default,
+  which moves its probabilities by up to ~1e-2 from full float32 and by up to ~6e-4 between repeated runs;
+  `predict_torch.py` uses full float32 and gives the same result every time. The per-model results are in
+  [docs/validation.md](docs/validation.md).
 - **Speed**: per model, about 2x (Pascal) to 4x (Ampere) faster than `predict.py` on a GPU.
 - **Inference only**: `train.py` still uses TensorFlow.
 - **Log messages on PyTorch 2.13 and 2.14**: lines like `CUDACachingAllocator.cpp ... memory allocation failed with

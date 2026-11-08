@@ -10,7 +10,8 @@
     architectures can't drift from the trained weights. Batch normalisation is folded into the convolutions for
     inference.
   - On the same candidates the probabilities match TensorFlow FETCH's to within a few times 1e-4 for all eleven
-    models, with no label changes. It runs in full float32 (TF32 off), so repeated runs give identical results.
+    models, with no label changes ([docs/validation.md](docs/validation.md)). It runs in full float32 (TF32 off),
+    so repeated runs give identical results.
   - Per model it is about 2x (Pascal) to 4x (Ampere) faster than `predict.py` on a GPU.
   - A candidate containing NaN is scored with the NaNs set to 0, where `predict.py` stops at it.
 - `FETCH_MODEL_DIR` sets where the weight files are read from (for example inside a container); by default
