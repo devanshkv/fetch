@@ -1,5 +1,9 @@
 from setuptools import setup
 
+# The README as the package's description, with its links into the repository made absolute
+with open("README.md") as f:
+    long_description = f.read().replace("](docs/", "](https://github.com/devanshkv/fetch/blob/tf2/docs/")
+
 setup(
     name="fetch",
     version="0.2.0",
@@ -16,11 +20,12 @@ setup(
         "torch": ["torch>=2.0"],
         "test": ["pytest", "pytest-cov"],
     },
-    tests_require=["pytest", "pytest-cov"],
     license="GNU General Public License v3.0",
-    author=["Devansh Agarwal", "Kshitij Aggarwal"],
-    author_email=["devansh.kv@gmail.com", "ka0064@mix.wvu.edu"],
+    author="Devansh Agarwal, Kshitij Aggarwal",
+    author_email="devansh.kv@gmail.com, ka0064@mix.wvu.edu",
     description="FETCH (Fast Extragalactic Transient Candidate Hunter)",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     classifiers=[
         "Natural Language :: English",
         "Intended Audience :: Science/Research",
