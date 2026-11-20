@@ -9,10 +9,12 @@
   - The models are built from the original Keras weight files, using each file's own `model_config`, so the
     architectures can't drift from the trained weights. Batch normalisation is folded into the convolutions for
     inference.
-  - On the same candidates the probabilities match TensorFlow FETCH's to within a few times 1e-4 for all eleven
-    models, with no label changes ([docs/validation.md](docs/validation.md)). It runs in full float32 (TF32 off),
-    so repeated runs give identical results.
-  - Per model it is about 2x (Pascal) to 4x (Ampere) faster than `predict.py` on a GPU.
+  - On 41,993 candidates the probabilities match TensorFlow FETCH's (TF32 off) to within 3.7e-4 for ten of the
+    eleven models and 1.4e-3 for model j, where TensorFlow's GPU result is the one that's off, with no label
+    changes ([docs/validation.md](docs/validation.md)). It runs in full float32 (TF32 off), so repeated runs give
+    identical results.
+  - Per model it is about 2x faster than `predict.py` on a GPU, on Pascal and Ampere (1.9x to 3.7x on an
+    8 GB Ampere GPU).
   - A candidate containing NaN is scored with the NaNs set to 0, where `predict.py` stops at it.
 - `FETCH_MODEL_DIR` sets where the weight files are read from (for example inside a container); by default
   they are shared with `predict.py` in `~/.keras/models`.

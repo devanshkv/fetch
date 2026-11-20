@@ -37,19 +37,23 @@ of the candidates, and `--data_dir` can be given more than once.
 - **Weights**: each model is built from its original Keras weight file. As for `predict.py`, the file is downloaded on
   first use into `~/.keras/models/` and checked against its md5 in `fetch/models/model_list.csv`. Set
   `FETCH_MODEL_DIR` to read the weights from another directory, for example inside a container.
-- **Agreement with TensorFlow**: on the same candidates, all eleven models' probabilities agree with `predict.py`'s
-  to within a few times 1e-4, with no label changes. Where the GPU supports it, TensorFlow uses TF32 by default,
-  which moves its probabilities by up to ~1e-2 from full float32 and by up to ~6e-4 between repeated runs;
-  `predict_torch.py` uses full float32 and gives the same result every time. The per-model results are in
-  [docs/validation.md](docs/validation.md).
-- **Speed**: per model, about 2x (Pascal) to 4x (Ampere) faster than `predict.py` on a GPU.
+- **Agreement with TensorFlow**: on 41,993 candidates, `predict.py` (TF32 off) and
+  `predict_torch.py` agree to within 3.7e-4 for ten of the eleven models and 1.4e-3 for model j, with no label
+  changes. The j differences come from TensorFlow's GPU path: against a float64 reference, TensorFlow on the GPU is
+  off by up to 1.4e-3, while TensorFlow on the CPU and `predict_torch.py` are within 2.3e-5. Where the GPU supports
+  it, TensorFlow uses TF32 by default, which moves its probabilities by up to ~1e-2 from full float32 and by up to
+  ~6e-4 between repeated runs; even with TF32 off, cuDNN's autotuning can change TensorFlow's results between runs
+  (up to 1.8e-3 for model j). `predict_torch.py` uses full float32 and gives the same result every time. The
+  per-model results are in [docs/validation.md](docs/validation.md).
+- **Speed**: per model, about 2x faster than `predict.py` on a GPU, on Pascal and Ampere (on 21,998 candidates on an
+  8 GB Ampere GPU, 1.9x to 3.7x per model and 2.3x for all eleven).
 - **Inference only**: `train.py` still uses TensorFlow.
 - **Log messages on PyTorch 2.13 and 2.14**: lines like `CUDACachingAllocator.cpp ... memory allocation failed with
   OOM ... while trying to allocate 9154068480 bytes` are harmless. cuDNN asks for a large workspace, PyTorch's
   allocator retries with less, and the results are unaffected; PyTorch logs every such retry as a warning in these
   versions ([pytorch#193195](https://github.com/pytorch/pytorch/issues/193195)). PyTorch 2.15 no longer prints them;
   on older versions `TORCH_CPP_LOG_LEVEL=ERROR` hides them. (2.14 with CUDA 12.6 is the last official build with Pascal
-  support, e.g. for TITAN Xp GPUs.)
+  support.)
 - **Candidates containing NaN** are scored with the NaNs set to 0. `predict.py` stops at such a file instead, because
   scipy's `detrend` refuses NaN.
 
