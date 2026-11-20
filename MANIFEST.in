@@ -1,2 +1,5 @@
 include fetch/models/*.csv
 include fetch/models/*/*yaml
+include docs/*.md
+include CHANGELOG.md
+include tests/*.h5 tests/make_synthetic.py

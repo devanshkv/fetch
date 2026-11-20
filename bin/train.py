@@ -141,7 +141,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-vs",
         "--val_split",
-        help="Percent of data to use for validation",
+        help="Fraction of the data to use for validation",
         type=float,
         default=0.2,
     )
@@ -173,7 +173,7 @@ if __name__ == "__main__":
     data_df = pd.read_csv(args.data_csv)
 
     train_df, val_df = train_test_split(
-        data_df, test_size=(1 - args.val_split), random_state=1993
+        data_df, test_size=args.val_split, random_state=1993
     )
     train_data_generator = DataGenerator(
         list_IDs=list(train_df["h5"]),
