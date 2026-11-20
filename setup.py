@@ -12,7 +12,7 @@ setup(
     package_dir={"fetch": "fetch"},
     package_data={"fetch": ["models/model_list.csv", "models/*/*"]},
     url="https://github.com/devanshkv/fetch",
-    python_requires=">=3.8",
+    python_requires=">=3.11",
     install_requires=["numpy>=1.19.5", "pandas>=1.2.2", "h5py>=3.1.0", "scipy>=1.6.0"],
     # predict.py and train.py need tensorflow (train.py also scikit-learn); predict_torch.py needs torch
     extras_require={

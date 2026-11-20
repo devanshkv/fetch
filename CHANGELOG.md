@@ -23,6 +23,7 @@
   model a.
 
 ### Changed
+- Python 3.11 or newer is required, as for current PyTorch (2.15); CI tests 3.11 and 3.14.
 - TensorFlow and PyTorch are optional extras: `pip install ".[torch]"` or `pip install ".[tensorflow]"`.
   The tensorflow extra also installs scikit-learn, which `train.py` needs.
 
